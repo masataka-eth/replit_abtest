@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TestTubes, Sparkles } from "lucide-react";
+import { TestTubes, Sparkles, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -16,20 +16,16 @@ export function ABTest() {
   const [copyB, setCopyB] = useState(defaultCopyB);
   const [personas, setPersonas] = useState(defaultPersonas);
   const [results, setResults] = useState<AnalysisResult[]>([]);
+  const [activeTab, setActiveTab] = useState<'result' | 'edit'>(results.length > 0 ? 'result' : 'edit');
   const { toast } = useToast();
 
   const analyzeMutation = useMutation({
     mutationFn: () => {
-      console.log("分析リクエストデータ:", {
-        copyA,
-        copyB,
-        personas: personas.map((p, i) => ({ number: i + 1, attributes: p }))
-      });
       return analyzeABTest(copyA, copyB, personas.map((p, i) => ({ number: i + 1, attributes: p })));
     },
     onSuccess: (data) => {
-      console.log("分析成功レスポンス:", data);
       setResults(data.results);
+      setActiveTab('result');
     },
     onError: (error) => {
       console.error("分析エラー詳細:", error);
@@ -41,6 +37,45 @@ export function ABTest() {
     },
   });
 
+  const CopyInputs = ({ readOnly = false }) => (
+    <div className="flex gap-4">
+      <Card className="flex-1 bg-white shadow-lg">
+        <CardHeader className="p-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-blue-600" />
+            コピーA
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            value={copyA}
+            onChange={(e) => setCopyA(e.target.value)}
+            className="h-32 resize-none"
+            placeholder="1つ目のキャッチコピーや説明文を入力してください"
+            readOnly={readOnly}
+          />
+        </CardContent>
+      </Card>
+      <Card className="flex-1 bg-white shadow-lg">
+        <CardHeader className="p-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-purple-600" />
+            コピーB
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            value={copyB}
+            onChange={(e) => setCopyB(e.target.value)}
+            className="h-32 resize-none"
+            placeholder="2つ目のキャッチコピーや説明文を入力してください"
+            readOnly={readOnly}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <div className="text-center mb-8">
@@ -50,43 +85,33 @@ export function ABTest() {
         </div>
       </div>
 
-      {results.length === 0 ? (
-        <>
-          <div className="flex gap-4">
-            <Card className="flex-1 bg-white shadow-lg">
-              <CardHeader className="p-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-blue-600" />
-                  コピーA
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={copyA}
-                  onChange={(e) => setCopyA(e.target.value)}
-                  className="h-32 resize-none"
-                  placeholder="1つ目のキャッチコピーや説明文を入力してください"
-                />
-              </CardContent>
-            </Card>
-            <Card className="flex-1 bg-white shadow-lg">
-              <CardHeader className="p-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-600" />
-                  コピーB
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={copyB}
-                  onChange={(e) => setCopyB(e.target.value)}
-                  className="h-32 resize-none"
-                  placeholder="2つ目のキャッチコピーや説明文を入力してください"
-                />
-              </CardContent>
-            </Card>
-          </div>
+      <div className="space-y-6">
+        <CopyInputs readOnly={results.length > 0} />
 
+        {results.length > 0 && (
+          <div className="flex justify-center mb-6">
+            <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setActiveTab('result')}
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  activeTab === 'result' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+                }`}
+              >
+                分析結果
+              </button>
+              <button
+                onClick={() => setActiveTab('edit')}
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  activeTab === 'edit' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+                }`}
+              >
+                属性編集
+              </button>
+            </div>
+          </div>
+        )}
+
+        {(results.length === 0 || activeTab === 'edit') && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {personas.map((persona, index) => (
               <PersonaCard
@@ -101,21 +126,37 @@ export function ABTest() {
               />
             ))}
           </div>
+        )}
 
-          <div className="flex justify-center mt-8">
+        {results.length > 0 && activeTab === 'result' && (
+          <ResultsDisplay results={results} />
+        )}
+
+        <div className="flex justify-between items-center">
+          <div className="flex-1" />
+          <div className="flex-1 flex justify-center">
             <Button
               onClick={() => analyzeMutation.mutate()}
               disabled={analyzeMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-lg shadow-lg flex items-center gap-2"
             >
               <TestTubes className="h-5 w-5" />
               {analyzeMutation.isPending ? "分析中..." : "分析する"}
             </Button>
           </div>
-        </>
-      ) : (
-        <ResultsDisplay results={results} />
-      )}
+          <div className="flex-1 flex justify-end">
+            {results.length > 0 && (
+              <Button
+                onClick={() => downloadCSV(results)}
+                className="bg-white hover:bg-gray-50 text-blue-600 px-8 h-12 rounded-lg shadow-lg flex items-center gap-2 border border-blue-600"
+              >
+                <Download className="h-5 w-5" />
+                CSV出力
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
