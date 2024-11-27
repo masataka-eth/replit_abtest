@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { TestTubes, Sparkles, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { PersonaCard } from "@/components/PersonaCard";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
-import { analyzeABTest } from "@/lib/api";
+import { analyzeABTest, downloadCSV } from "@/lib/api";
 import type { PersonaAttribute, AnalysisResult } from "@/lib/types";
-import { defaultCopyA, defaultCopyB, defaultPersonas } from "@/lib/defaultTestData";
 
 export function ABTest() {
   const [copyA, setCopyA] = useState('');
   const [copyB, setCopyB] = useState('');
-  const [personas, setPersonas] = useState(defaultPersonas);
+  const [personas, setPersonas] = useState<PersonaAttribute[]>([]);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [activeTab, setActiveTab] = useState<'result' | 'edit'>(results.length > 0 ? 'result' : 'edit');
   const { toast } = useToast();
@@ -52,6 +50,7 @@ export function ABTest() {
             onChange={(e) => setCopyA(e.target.value)}
             className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="1つ目のキャッチコピーや説明文を入力してください"
+            readOnly={false}
           />
         </CardContent>
       </Card>
@@ -68,6 +67,7 @@ export function ABTest() {
             onChange={(e) => setCopyB(e.target.value)}
             className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="2つ目のキャッチコピーや説明文を入力してください"
+            readOnly={false}
           />
         </CardContent>
       </Card>
@@ -84,7 +84,7 @@ export function ABTest() {
       </div>
 
       <div className="space-y-6">
-        <CopyInputs readOnly={activeTab === 'result'} />
+        <CopyInputs />
 
         {results.length > 0 && (
           <div className="flex justify-center mb-6">
@@ -111,11 +111,19 @@ export function ABTest() {
 
         {(results.length === 0 || activeTab === 'edit') && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {personas.map((persona, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <PersonaCard
                 key={index}
                 number={index + 1}
-                value={persona}
+                value={personas[index] || {
+                  gender: '',
+                  age: '',
+                  values: '',
+                  lifestage: '',
+                  income: '',
+                  consumerBehavior: '',
+                  techAttitude: '',
+                }}
                 onChange={(newValue) => {
                   const newPersonas = [...personas];
                   newPersonas[index] = newValue;
