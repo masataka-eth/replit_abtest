@@ -57,17 +57,17 @@ export function registerRoutes(app: Express) {
           inputs: {
             model_A: copyA,
             model_B: copyB,
-            persona_no: personaInputs.map(p => p.number).join(","),
+            persona_no: personaInputs.map(p => p.number.toString()).join(","),
             persona_gender: personaInputs.map(p => p.gender).join(","),
             persona_age: personaInputs.map(p => p.age).join(","),
             persona_values: personaInputs.map(p => p.values).join(","),
             persona_lifestage: personaInputs.map(p => p.lifestage).join(","),
             persona_income: personaInputs.map(p => p.income).join(","),
             persona_consump: personaInputs.map(p => p.consumerBehavior).join(","),
-            persona_tech: personaInputs.map(p => p.techAttitude).join(","),
+            persona_tech: personaInputs.map(p => p.techAttitude).join(",")
           },
           response_mode: "blocking",
-          user: "abc-123"
+          conversation_id: "abc-123"
         }),
       });
 
@@ -81,8 +81,20 @@ export function registerRoutes(app: Express) {
 
       const data = await response.json();
       console.log("Dify APIレスポンス:", data);
-      
-      res.json({ results: data });
+
+      // レスポンスの形式を調整
+      const results = Array.from({ length: personaInputs.length }, (_, i) => ({
+        respondent_id: i + 1,
+        preferred_option: data.answer.includes(`コピーA`) ? "A" : "B",
+        analysis_reasons: {
+          psychological_mechanism: data.answer,
+          purchase_behavior_impact: data.answer,
+          competitive_advantage: data.answer,
+          improvement_suggestions: data.answer
+        }
+      }));
+
+      res.json({ results });
     } catch (error) {
       console.error("詳細なエラー情報:", {
         message: error.message,
