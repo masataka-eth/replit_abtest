@@ -24,10 +24,8 @@ export function downloadCSV(data: any[], copyA: string, copyB: string) {
   // CSVデータの作成
   const rows = data.map(result => [
     `ペルソナ${result.respondent_id}`,
-    // コピーの生データ
-    copyA,
-    copyB,
-    // 分析結果
+    copyA.replace(/,/g, '、').replace(/\n/g, ' '),  // 改行とカンマを置換
+    copyB.replace(/,/g, '、').replace(/\n/g, ' '),  // 改行とカンマを置換
     `コピー${result.preferred_option}`,
     // ペルソナ属性
     result.persona?.gender || '',
@@ -37,11 +35,11 @@ export function downloadCSV(data: any[], copyA: string, copyB: string) {
     result.persona?.income || '',
     result.persona?.consumerBehavior || '',
     result.persona?.techAttitude || '',
-    // 分析理由
-    result.analysis_reasons.psychological_mechanism.replace(/,/g, '、'),
-    result.analysis_reasons.purchase_behavior_impact.replace(/,/g, '、'),
-    result.analysis_reasons.competitive_advantage.replace(/,/g, '、'),
-    result.analysis_reasons.improvement_suggestions.replace(/,/g, '、')
+    // 分析理由（カンマと改行を置換）
+    result.analysis_reasons.psychological_mechanism.replace(/,/g, '、').replace(/\n/g, ' '),
+    result.analysis_reasons.purchase_behavior_impact.replace(/,/g, '、').replace(/\n/g, ' '),
+    result.analysis_reasons.competitive_advantage.replace(/,/g, '、').replace(/\n/g, ' '),
+    result.analysis_reasons.improvement_suggestions.replace(/,/g, '、').replace(/\n/g, ' ')
   ]);
 
   const headers = [
