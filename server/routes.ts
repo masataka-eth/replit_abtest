@@ -62,7 +62,7 @@ export function registerRoutes(app: Express) {
           persona_values: personaInputs.map(p => p.values).join(','),
           persona_lifestage: personaInputs.map(p => p.lifestage).join(','),
           persona_income: personaInputs.map(p => p.income).join(','),
-          persona_consump: personaInputs.map(p => p.consumerBehavior).join(','),
+          persona_consumption: personaInputs.map(p => p.consumerBehavior).join(','),
           persona_tech: personaInputs.map(p => p.techAttitude).join(',')
         },
         response_mode: "blocking",
