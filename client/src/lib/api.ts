@@ -21,27 +21,32 @@ export async function analyzeABTest(copyA: string, copyB: string, personas: Pers
 }
 
 export function downloadCSV(data: any[]) {
-  const headers = ["Persona", "Preferred Option", "Psychological Mechanism", "Purchase Behavior Impact", "Competitive Advantage", "Improvement Suggestions"];
+  // CSVデータの作成
   const rows = data.map(result => [
-    `Persona ${result.respondent_id}`,
-    result.preferred_option,
-    result.analysis_reasons.psychological_mechanism,
-    result.analysis_reasons.purchase_behavior_impact,
-    result.analysis_reasons.competitive_advantage,
-    result.analysis_reasons.improvement_suggestions,
+    `ペルソナ${result.respondent_id}`,
+    `コピー${result.preferred_option}`,
+    result.analysis_reasons.psychological_mechanism.replace(/,/g, '、'),
+    result.analysis_reasons.purchase_behavior_impact.replace(/,/g, '、'),
+    result.analysis_reasons.competitive_advantage.replace(/,/g, '、'),
+    result.analysis_reasons.improvement_suggestions.replace(/,/g, '、')
   ]);
 
+  const headers = ['ペルソナ', '推奨コピー', '心理的反応メカニズム', '購買行動への影響', '競合との差別化', '改善提案'];
+  
+  // BOMを追加してShift-JISエンコーディングを使用
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
   const csvContent = [
-    headers.join(","),
-    ...rows.map(row => row.join(","))
-  ].join("\n");
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n');
 
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
+  const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", "ab_test_results.csv");
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'ab_test_results.csv';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

@@ -12,8 +12,8 @@ import type { PersonaAttribute, AnalysisResult } from "@/lib/types";
 import { defaultCopyA, defaultCopyB, defaultPersonas } from "@/lib/defaultTestData";
 
 export function ABTest() {
-  const [copyA, setCopyA] = useState(defaultCopyA);
-  const [copyB, setCopyB] = useState(defaultCopyB);
+  const [copyA, setCopyA] = useState('');
+  const [copyB, setCopyB] = useState('');
   const [personas, setPersonas] = useState(defaultPersonas);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [activeTab, setActiveTab] = useState<'result' | 'edit'>(results.length > 0 ? 'result' : 'edit');
@@ -37,7 +37,7 @@ export function ABTest() {
     },
   });
 
-  const CopyInputs = ({ readOnly = false }) => (
+  const CopyInputs = () => (
     <div className="flex gap-4">
       <Card className="flex-1 bg-white shadow-lg">
         <CardHeader className="p-3">
@@ -47,12 +47,11 @@ export function ABTest() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Textarea
+          <textarea
             value={copyA}
             onChange={(e) => setCopyA(e.target.value)}
-            className="h-32 resize-none"
+            className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="1つ目のキャッチコピーや説明文を入力してください"
-            readOnly={activeTab === 'result'}
           />
         </CardContent>
       </Card>
@@ -64,12 +63,11 @@ export function ABTest() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Textarea
+          <textarea
             value={copyB}
             onChange={(e) => setCopyB(e.target.value)}
-            className="h-32 resize-none"
+            className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="2つ目のキャッチコピーや説明文を入力してください"
-            readOnly={activeTab === 'result'}
           />
         </CardContent>
       </Card>
