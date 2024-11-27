@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { TestTubes, Sparkles, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,48 @@ import { PersonaCard } from "@/components/PersonaCard";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { analyzeABTest, downloadCSV } from "@/lib/api";
 import type { PersonaAttribute, AnalysisResult } from "@/lib/types";
+
+const CopyInputs = memo(({ copyA, copyB, setCopyA, setCopyB }: {
+  copyA: string;
+  copyB: string;
+  setCopyA: (value: string) => void;
+  setCopyB: (value: string) => void;
+}) => (
+  <div className="flex gap-4">
+    <Card className="flex-1 bg-white shadow-lg">
+      <CardHeader className="p-3">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-blue-600" />
+          コピーA
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <textarea
+          value={copyA}
+          onChange={(e) => setCopyA(e.target.value)}
+          className="w-full h-32 p-3 border rounded-md resize-none"
+          placeholder="1つ目のキャッチコピーや説明文を入力してください"
+        />
+      </CardContent>
+    </Card>
+    <Card className="flex-1 bg-white shadow-lg">
+      <CardHeader className="p-3">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-purple-600" />
+          コピーB
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <textarea
+          value={copyB}
+          onChange={(e) => setCopyB(e.target.value)}
+          className="w-full h-32 p-3 border rounded-md resize-none"
+          placeholder="2つ目のキャッチコピーや説明文を入力してください"
+        />
+      </CardContent>
+    </Card>
+  </div>
+));
 
 export function ABTest() {
   const [copyA, setCopyA] = useState('');
@@ -35,43 +77,6 @@ export function ABTest() {
     },
   });
 
-  const CopyInputs = () => (
-    <div className="flex gap-4">
-      <Card className="flex-1 bg-white shadow-lg">
-        <CardHeader className="p-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-600" />
-            コピーA
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <textarea
-            value={copyA}
-            onChange={(e) => setCopyA(e.target.value)}
-            className="w-full h-32 p-3 border rounded-md resize-none"
-            placeholder="1つ目のキャッチコピーや説明文を入力してください"
-          />
-        </CardContent>
-      </Card>
-      <Card className="flex-1 bg-white shadow-lg">
-        <CardHeader className="p-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-600" />
-            コピーB
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <textarea
-            value={copyB}
-            onChange={(e) => setCopyB(e.target.value)}
-            className="w-full h-32 p-3 border rounded-md resize-none"
-            placeholder="2つ目のキャッチコピーや説明文を入力してください"
-          />
-        </CardContent>
-      </Card>
-    </div>
-  );
-
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <div className="text-center mb-8">
@@ -82,7 +87,12 @@ export function ABTest() {
       </div>
 
       <div className="space-y-6">
-        <CopyInputs />
+        <CopyInputs
+          copyA={copyA}
+          copyB={copyB}
+          setCopyA={setCopyA}
+          setCopyB={setCopyB}
+        />
 
         {results.length > 0 && (
           <div className="flex justify-center mb-6">
