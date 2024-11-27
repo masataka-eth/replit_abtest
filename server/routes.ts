@@ -94,16 +94,39 @@ export function registerRoutes(app: Express) {
 
       console.log("=== レスポンス解析 ===");
       try {
+        console.log("APIレスポンスの構造:", {
+          hasData: 'data' in data,
+          hasOutputs: data.data && 'outputs' in data.data,
+          outputKeys: data.data?.outputs ? Object.keys(data.data.outputs) : []
+        });
+
         const results = [];
-        
-        // 4つのペルソナの結果を解析
         for (let i = 1; i <= 4; i++) {
           const resultKey = `result_${i}`;
-          if (data.data.outputs[resultKey]) {
-            const resultData = JSON.parse(data.data.outputs[resultKey]);
-            results.push(resultData);
-            console.log(`ペルソナ${i}の解析結果:`, JSON.stringify(resultData, null, 2));
+          try {
+            if (data.data?.outputs?.[resultKey]) {
+              const resultString = data.data.outputs[resultKey].toString();
+              console.log(`ペルソナ${i}の生データ:`, resultString);
+              
+              // 文字列の整形（不正な文字の除去）
+              const cleanedString = resultString
+                .replace(/\n/g, ' ')
+                .replace(/\"/g, '"')
+                .replace(/\\/g, '\\\\');
+              
+              const resultData = JSON.parse(cleanedString);
+              console.log(`ペルソナ${i}の解析結果:`, resultData);
+              results.push(resultData);
+            }
+          } catch (error) {
+            console.error(`ペルソナ${i}の解析エラー:`, error);
+            console.error('問題のある文字列:', data.data?.outputs?.[resultKey]);
           }
+        }
+
+        // 結果の検証
+        if (results.length === 0) {
+          throw new Error('No valid results could be parsed from the API response');
         }
 
         console.log("=== 最終レスポンス ===");
