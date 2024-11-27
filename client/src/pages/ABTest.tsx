@@ -220,7 +220,13 @@ export function ABTest() {
           <div className="flex-1 flex justify-end">
             {results.length > 0 && (
               <Button
-                onClick={() => downloadCSV(results)}
+                onClick={() => {
+                  const resultsWithPersonas = results.map((result, index) => ({
+                    ...result,
+                    persona: personas[index]
+                  }));
+                  downloadCSV(resultsWithPersonas);
+                }}
                 className="bg-white hover:bg-gray-50 text-blue-600 px-8 h-12 rounded-lg shadow-lg flex items-center gap-2 border border-blue-600"
               >
                 <Download className="h-5 w-5" />
