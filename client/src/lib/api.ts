@@ -20,10 +20,14 @@ export async function analyzeABTest(copyA: string, copyB: string, personas: Pers
   return response.json();
 }
 
-export function downloadCSV(data: any[]) {
+export function downloadCSV(data: any[], copyA: string, copyB: string) {
   // CSVデータの作成
   const rows = data.map(result => [
     `ペルソナ${result.respondent_id}`,
+    // コピーの生データ
+    copyA,
+    copyB,
+    // 分析結果
     `コピー${result.preferred_option}`,
     // ペルソナ属性
     result.persona?.gender || '',
@@ -33,7 +37,7 @@ export function downloadCSV(data: any[]) {
     result.persona?.income || '',
     result.persona?.consumerBehavior || '',
     result.persona?.techAttitude || '',
-    // 分析結果
+    // 分析理由
     result.analysis_reasons.psychological_mechanism.replace(/,/g, '、'),
     result.analysis_reasons.purchase_behavior_impact.replace(/,/g, '、'),
     result.analysis_reasons.competitive_advantage.replace(/,/g, '、'),
@@ -42,6 +46,8 @@ export function downloadCSV(data: any[]) {
 
   const headers = [
     'ペルソナ',
+    'コピーA',
+    'コピーB',
     '推奨コピー',
     // ペルソナ属性のヘッダー
     '性別',

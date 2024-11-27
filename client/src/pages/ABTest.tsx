@@ -225,7 +225,7 @@ export function ABTest() {
                     ...result,
                     persona: personas[index]
                   }));
-                  downloadCSV(resultsWithPersonas);
+                  downloadCSV(resultsWithPersonas, copyA, copyB);
                 }}
                 className="bg-white hover:bg-gray-50 text-blue-600 px-8 h-12 rounded-lg shadow-lg flex items-center gap-2 border border-blue-600"
               >
