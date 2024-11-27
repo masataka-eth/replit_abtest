@@ -11,6 +11,11 @@ interface PersonaInput {
   techAttitude: string;
 }
 
+interface APIError {
+  message: string;
+  cause?: unknown;
+}
+
 interface PersonaRequest {
   number: number;
   attributes: {
@@ -96,7 +101,6 @@ export function registerRoutes(app: Express) {
       try {
         const results = [];
         
-        // 4つのペルソナの結果を解析
         for (let i = 1; i <= 4; i++) {
           const resultKey = `result_${i}`;
           if (data.data.outputs[resultKey]) {
@@ -110,18 +114,18 @@ export function registerRoutes(app: Express) {
         console.log("10. クライアントへの返信データ:", JSON.stringify({ results }, null, 2));
 
         res.json({ results });
-      } catch (error) {
-        console.error("レスポンス解析エラー:", error);
+      } catch (parseError: unknown) {
+        console.error("レスポンス解析エラー:", parseError);
+        const error = parseError as Error;
         throw new Error(`Failed to parse API response: ${error.message}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("=== エラー詳細 ===");
-      // エラーオブジェクトの型を定義
       const err = error as Error;
       console.error("エラーメッセージ:", err.message);
       console.error("スタックトレース:", err.stack);
       console.error("エラーの種類:", err.constructor.name);
-      if (err.cause) {
+      if (err instanceof Error && err.cause) {
         console.error("エラーの原因:", err.cause);
       }
       res.status(500).json({ 
