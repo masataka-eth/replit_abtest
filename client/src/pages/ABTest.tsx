@@ -48,9 +48,8 @@ export function ABTest() {
           <textarea
             value={copyA}
             onChange={(e) => setCopyA(e.target.value)}
-            className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full h-32 p-3 border rounded-md resize-none"
             placeholder="1つ目のキャッチコピーや説明文を入力してください"
-            readOnly={false}
           />
         </CardContent>
       </Card>
@@ -65,9 +64,8 @@ export function ABTest() {
           <textarea
             value={copyB}
             onChange={(e) => setCopyB(e.target.value)}
-            className="w-full h-32 p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full h-32 p-3 border rounded-md resize-none"
             placeholder="2つ目のキャッチコピーや説明文を入力してください"
-            readOnly={false}
           />
         </CardContent>
       </Card>
