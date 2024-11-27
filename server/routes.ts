@@ -93,32 +93,27 @@ export function registerRoutes(app: Express) {
       console.log("7. 成功レスポンス:", JSON.stringify(data, null, 2));
 
       console.log("=== レスポンス解析 ===");
-      const responseText = data.answer;
-      console.log("8. 解析前のテキスト:", responseText);
-
-      const results = personaInputs.map((persona, index) => {
-        console.log(`9. ペルソナ${index + 1}の解析開始`);
-        const personaSection = responseText.split(`ペルソナ${index + 1}`)[1]?.split(`ペルソナ${index + 2}`)[0] || '';
-        console.log(`- セクション抽出結果:`, personaSection);
+      try {
+        const results = [];
         
-        const result = {
-          respondent_id: index + 1,
-          preferred_option: personaSection.toLowerCase().includes('コピーa') ? 'A' : 'B',
-          analysis_reasons: {
-            psychological_mechanism: personaSection.split('心理的反応メカニズム')[1]?.split('購買行動')[0]?.trim() || '',
-            purchase_behavior_impact: personaSection.split('購買行動への影響')[1]?.split('競合')[0]?.trim() || '',
-            competitive_advantage: personaSection.split('競合との差別化')[1]?.split('改善提案')[0]?.trim() || '',
-            improvement_suggestions: personaSection.split('改善提案')[1]?.trim() || ''
+        // 4つのペルソナの結果を解析
+        for (let i = 1; i <= 4; i++) {
+          const resultKey = `result_${i}`;
+          if (data.data.outputs[resultKey]) {
+            const resultData = JSON.parse(data.data.outputs[resultKey]);
+            results.push(resultData);
+            console.log(`ペルソナ${i}の解析結果:`, JSON.stringify(resultData, null, 2));
           }
-        };
-        console.log(`- 解析結果:`, JSON.stringify(result, null, 2));
-        return result;
-      });
+        }
 
-      console.log("=== 最終レスポンス ===");
-      console.log("10. クライアントへの返信データ:", JSON.stringify({ results }, null, 2));
+        console.log("=== 最終レスポンス ===");
+        console.log("10. クライアントへの返信データ:", JSON.stringify({ results }, null, 2));
 
-      res.json({ results });
+        res.json({ results });
+      } catch (error) {
+        console.error("レスポンス解析エラー:", error);
+        throw new Error(`Failed to parse API response: ${error.message}`);
+      }
     } catch (error) {
       console.error("=== エラー詳細 ===");
       console.error("エラーメッセージ:", error.message);
