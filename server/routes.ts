@@ -27,6 +27,7 @@ interface PersonaRequest {
 export function registerRoutes(app: Express) {
   app.post("/api/analyze", async (req, res) => {
     try {
+      console.log("リクエストボディ:", req.body);
       const { copyA, copyB, personas } = req.body;
 
       const personaInputs: PersonaInput[] = personas.map((p: PersonaRequest) => ({
@@ -39,6 +40,12 @@ export function registerRoutes(app: Express) {
         consumerBehavior: p.attributes.consumerBehavior,
         techAttitude: p.attributes.techAttitude,
       }));
+
+      console.log("Difyへのリクエストデータ:", {
+        copyA,
+        copyB,
+        personaInputs
+      });
 
       const response = await fetch("https://api.dify.ai/v1/workflows/run", {
         method: "POST",
@@ -65,13 +72,22 @@ export function registerRoutes(app: Express) {
       });
 
       if (!response.ok) {
+        console.log("Dify APIエラー:", {
+          status: response.status,
+          statusText: response.statusText
+        });
         throw new Error("Failed to analyze");
       }
 
       const data = await response.json();
+      console.log("Dify APIレスポンス:", data);
+      
       res.json({ results: data });
     } catch (error) {
-      console.error("Analysis error:", error);
+      console.error("詳細なエラー情報:", {
+        message: error.message,
+        stack: error.stack
+      });
       res.status(500).json({ error: "Analysis failed" });
     }
   });

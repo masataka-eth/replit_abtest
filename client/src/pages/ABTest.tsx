@@ -19,11 +19,20 @@ export function ABTest() {
   const { toast } = useToast();
 
   const analyzeMutation = useMutation({
-    mutationFn: () => analyzeABTest(copyA, copyB, personas.map((p, i) => ({ number: i + 1, attributes: p }))),
+    mutationFn: () => {
+      console.log("分析リクエストデータ:", {
+        copyA,
+        copyB,
+        personas: personas.map((p, i) => ({ number: i + 1, attributes: p }))
+      });
+      return analyzeABTest(copyA, copyB, personas.map((p, i) => ({ number: i + 1, attributes: p })));
+    },
     onSuccess: (data) => {
+      console.log("分析成功レスポンス:", data);
       setResults(data.results);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("分析エラー詳細:", error);
       toast({
         title: "エラー",
         description: "分析に失敗しました。入力内容を確認して再度お試しください。",
