@@ -53,38 +53,25 @@ export function registerRoutes(app: Express) {
 
       console.log("=== Dify APIリクエスト準備 ===");
       const requestBody = {
-        query: `以下の2つのコピーについて、4つのペルソナそれぞれの視点で分析してください：
-
-コピーA: ${copyA}
-コピーB: ${copyB}
-
-ペルソナ情報：
-${personaInputs.map((p, i) => `
-ペルソナ${p.number}:
-- 性別: ${p.gender}
-- 年齢: ${p.age}
-- 価値観: ${p.values}
-- ライフステージ: ${p.lifestage}
-- 収入: ${p.income}
-- 消費行動: ${p.consumerBehavior}
-- 技術態度: ${p.techAttitude}
-`).join('\n')}
-
-それぞれのペルソナについて：
-1. どちらのコピーが効果的か（AまたはB）
-2. 心理的反応メカニズム
-3. 購買行動への影響
-4. 競合との差別化
-5. 改善提案
-
-を分析してください。`,
-        user: "user-123",
-        response_mode: "blocking"
+        inputs: {
+          model_A: copyA,
+          model_B: copyB,
+          persona_no: personaInputs.map(p => p.number).join(','),
+          persona_gender: personaInputs.map(p => p.gender).join(','),
+          persona_age: personaInputs.map(p => p.age).join(','),
+          persona_values: personaInputs.map(p => p.values).join(','),
+          persona_lifestage: personaInputs.map(p => p.lifestage).join(','),
+          persona_income: personaInputs.map(p => p.income).join(','),
+          persona_consump: personaInputs.map(p => p.consumerBehavior).join(','),
+          persona_tech: personaInputs.map(p => p.techAttitude).join(',')
+        },
+        response_mode: "blocking",
+        user: "abc-123"
       };
 
       console.log("4. Difyリクエストボディ:", JSON.stringify(requestBody, null, 2));
 
-      const response = await fetch("https://api.dify.ai/v1/chat-messages", {
+      const response = await fetch("https://api.dify.ai/v1/workflows/run", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.DIFY_API_KEY}`,
