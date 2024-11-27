@@ -58,7 +58,7 @@ const getRandomAttribute = (options: string[]): string => {
 
 const getRandomPersona = (): PersonaAttribute => {
   const attributes = {
-    gender: ["男性", "女性", "その他"],
+    gender: ["男性", "女性"], // 「その他」を除外
     age: ["10代", "20-24歳", "25-29歳", "30-34歳", "35-39歳", "40-44歳", "45-49歳", "50-54歳", "55-59歳", "60-64歳", "65歳以上"],
     values: ["品質重視", "価格重視", "トレンド重視", "環境配慮重視", "社会貢献重視"],
     lifestage: ["学生", "独身・若手社会人", "独身・キャリア充実期", "子育て初期家族", "子育て充実期家族", "子育て終了期家族", "夫婦二人暮らし"],
@@ -159,7 +159,7 @@ export function ABTest() {
                   <path d="M21.168 8A10.003 10.003 0 0 0 12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10a10.003 10.003 0 0 0 8.132-4.168" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M17 8h4.4a.6.6 0 0 0 .6-.6V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                ランダムで設定する
+                想定ユーザーの属性をランダムで設定する
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -197,10 +197,24 @@ export function ABTest() {
             <Button
               onClick={() => analyzeMutation.mutate()}
               disabled={analyzeMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-lg shadow-lg flex items-center gap-2"
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-lg shadow-lg flex items-center gap-2 ${
+                analyzeMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
             >
-              <TestTubes className="h-5 w-5" />
-              {analyzeMutation.isPending ? "分析中..." : "分析する"}
+              {analyzeMutation.isPending ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>分析中...</span>
+                </>
+              ) : (
+                <>
+                  <TestTubes className="h-5 w-5" />
+                  分析する
+                </>
+              )}
             </Button>
           </div>
           <div className="flex-1 flex justify-end">
@@ -216,6 +230,19 @@ export function ABTest() {
           </div>
         </div>
       </div>
+
+      {analyzeMutation.isPending && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <svg className="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="text-lg font-semibold">分析中...</p>
+            <p className="text-sm text-gray-500 mt-2">しばらくお待ちください</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
