@@ -49,7 +49,7 @@ export function ABTest() {
         <CardContent>
           <Textarea
             value={copyA}
-            onChange={(e) => setCopyA(e.target.value)}
+            onInput={(e) => setCopyA(e.currentTarget.value)}
             className="h-32 resize-none"
             placeholder="1つ目のキャッチコピーや説明文を入力してください"
             readOnly={readOnly}
@@ -66,7 +66,7 @@ export function ABTest() {
         <CardContent>
           <Textarea
             value={copyB}
-            onChange={(e) => setCopyB(e.target.value)}
+            onInput={(e) => setCopyB(e.currentTarget.value)}
             className="h-32 resize-none"
             placeholder="2つ目のキャッチコピーや説明文を入力してください"
             readOnly={readOnly}

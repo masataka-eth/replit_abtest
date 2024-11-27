@@ -114,17 +114,18 @@ export function registerRoutes(app: Express) {
         console.error("レスポンス解析エラー:", error);
         throw new Error(`Failed to parse API response: ${error.message}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("=== エラー詳細 ===");
-      console.error("エラーメッセージ:", error.message);
-      console.error("スタックトレース:", error.stack);
-      console.error("エラーの種類:", error.constructor.name);
-      if (error.cause) {
-        console.error("エラーの原因:", error.cause);
+      const err = error as Error;
+      console.error("エラーメッセージ:", err.message);
+      console.error("スタックトレース:", err.stack);
+      console.error("エラーの種類:", err.constructor.name);
+      if ('cause' in err) {
+        console.error("エラーの原因:", err.cause);
       }
       res.status(500).json({ 
         error: "Analysis failed",
-        details: error.message
+        details: err.message
       });
     }
   });
