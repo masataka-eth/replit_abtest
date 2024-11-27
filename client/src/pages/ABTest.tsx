@@ -9,21 +9,12 @@ import { PersonaCard } from "@/components/PersonaCard";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { analyzeABTest } from "@/lib/api";
 import type { PersonaAttribute, AnalysisResult } from "@/lib/types";
-
-const initialPersonaAttribute: PersonaAttribute = {
-  gender: "",
-  age: "",
-  values: "",
-  lifestage: "",
-  income: "",
-  consumerBehavior: "",
-  techAttitude: "",
-};
+import { defaultCopyA, defaultCopyB, defaultPersonas } from "@/lib/defaultTestData";
 
 export function ABTest() {
-  const [copyA, setCopyA] = useState("");
-  const [copyB, setCopyB] = useState("");
-  const [personas, setPersonas] = useState(Array(4).fill(null).map(() => ({ ...initialPersonaAttribute })));
+  const [copyA, setCopyA] = useState(defaultCopyA);
+  const [copyB, setCopyB] = useState(defaultCopyB);
+  const [personas, setPersonas] = useState(defaultPersonas);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const { toast } = useToast();
 

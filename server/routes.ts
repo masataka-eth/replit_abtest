@@ -1,11 +1,35 @@
 import type { Express } from "express";
 
+interface PersonaInput {
+  number: number;
+  gender: string;
+  age: string;
+  values: string;
+  lifestage: string;
+  income: string;
+  consumerBehavior: string;
+  techAttitude: string;
+}
+
+interface PersonaRequest {
+  number: number;
+  attributes: {
+    gender: string;
+    age: string;
+    values: string;
+    lifestage: string;
+    income: string;
+    consumerBehavior: string;
+    techAttitude: string;
+  };
+}
+
 export function registerRoutes(app: Express) {
   app.post("/api/analyze", async (req, res) => {
     try {
       const { copyA, copyB, personas } = req.body;
 
-      const personaInputs = personas.map((p: any) => ({
+      const personaInputs: PersonaInput[] = personas.map((p: PersonaRequest) => ({
         number: p.number,
         gender: p.attributes.gender,
         age: p.attributes.age,
