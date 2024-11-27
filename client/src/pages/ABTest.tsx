@@ -52,7 +52,7 @@ export function ABTest() {
             onChange={(e) => setCopyA(e.target.value)}
             className="h-32 resize-none"
             placeholder="1つ目のキャッチコピーや説明文を入力してください"
-            readOnly={readOnly}
+            readOnly={activeTab === 'result'}
           />
         </CardContent>
       </Card>
@@ -69,7 +69,7 @@ export function ABTest() {
             onChange={(e) => setCopyB(e.target.value)}
             className="h-32 resize-none"
             placeholder="2つ目のキャッチコピーや説明文を入力してください"
-            readOnly={readOnly}
+            readOnly={activeTab === 'result'}
           />
         </CardContent>
       </Card>
@@ -86,7 +86,7 @@ export function ABTest() {
       </div>
 
       <div className="space-y-6">
-        <CopyInputs readOnly={results.length > 0} />
+        <CopyInputs readOnly={activeTab === 'result'} />
 
         {results.length > 0 && (
           <div className="flex justify-center mb-6">
