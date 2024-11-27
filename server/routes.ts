@@ -47,27 +47,40 @@ export function registerRoutes(app: Express) {
         personaInputs
       });
 
-      const response = await fetch("https://api.dify.ai/v1/workflows/run", {
+      const response = await fetch("https://api.dify.ai/v1/chat-messages", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.DIFY_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          inputs: {
-            model_A: copyA,
-            model_B: copyB,
-            persona_no: personaInputs.map(p => p.number.toString()).join(","),
-            persona_gender: personaInputs.map(p => p.gender).join(","),
-            persona_age: personaInputs.map(p => p.age).join(","),
-            persona_values: personaInputs.map(p => p.values).join(","),
-            persona_lifestage: personaInputs.map(p => p.lifestage).join(","),
-            persona_income: personaInputs.map(p => p.income).join(","),
-            persona_consump: personaInputs.map(p => p.consumerBehavior).join(","),
-            persona_tech: personaInputs.map(p => p.techAttitude).join(",")
-          },
-          response_mode: "blocking",
-          conversation_id: "abc-123"
+          query: `以下の2つのコピーについて、4つのペルソナそれぞれの視点で分析してください：
+
+コピーA: ${copyA}
+コピーB: ${copyB}
+
+ペルソナ情報：
+${personaInputs.map((p, i) => `
+ペルソナ${p.number}:
+- 性別: ${p.gender}
+- 年齢: ${p.age}
+- 価値観: ${p.values}
+- ライフステージ: ${p.lifestage}
+- 収入: ${p.income}
+- 消費行動: ${p.consumerBehavior}
+- 技術態度: ${p.techAttitude}
+`).join('\n')}
+
+それぞれのペルソナについて：
+1. どちらのコピーが効果的か（AまたはB）
+2. 心理的反応メカニズム
+3. 購買行動への影響
+4. 競合との差別化
+5. 改善提案
+
+を分析してください。`,
+          user: "user-123",
+          response_mode: "blocking"
         }),
       });
 
@@ -82,17 +95,22 @@ export function registerRoutes(app: Express) {
       const data = await response.json();
       console.log("Dify APIレスポンス:", data);
 
-      // レスポンスの形式を調整
-      const results = Array.from({ length: personaInputs.length }, (_, i) => ({
-        respondent_id: i + 1,
-        preferred_option: data.answer.includes(`コピーA`) ? "A" : "B",
-        analysis_reasons: {
-          psychological_mechanism: data.answer,
-          purchase_behavior_impact: data.answer,
-          competitive_advantage: data.answer,
-          improvement_suggestions: data.answer
-        }
-      }));
+      // レスポンスを解析して結果を生成
+      const responseText = data.answer;
+      const results = personaInputs.map((persona, index) => {
+        const personaSection = responseText.split(`ペルソナ${index + 1}`)[1]?.split(`ペルソナ${index + 2}`)[0] || '';
+        
+        return {
+          respondent_id: index + 1,
+          preferred_option: personaSection.toLowerCase().includes('コピーa') ? 'A' : 'B',
+          analysis_reasons: {
+            psychological_mechanism: personaSection.split('心理的反応メカニズム')[1]?.split('購買行動')[0]?.trim() || '',
+            purchase_behavior_impact: personaSection.split('購買行動への影響')[1]?.split('競合')[0]?.trim() || '',
+            competitive_advantage: personaSection.split('競合との差別化')[1]?.split('改善提案')[0]?.trim() || '',
+            improvement_suggestions: personaSection.split('改善提案')[1]?.trim() || ''
+          }
+        };
+      });
 
       res.json({ results });
     } catch (error) {
